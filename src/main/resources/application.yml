@@ -1,0 +1,23 @@
+#?? ??
+server:
+  port: 8002
+
+spring:
+  config:
+    import: file:.env[.properties]
+  application:
+    name: auth-service
+
+  redis:
+    host: "${REDIS_HOST}"
+    port: "${REDIS_PORT}"
+    password: "${REDIS_PASSWORD}"
+
+
+#??? ????? ??
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: "${EUREKA_URL}"
