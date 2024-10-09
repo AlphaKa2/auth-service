@@ -11,4 +11,5 @@ public class UserSignInResponse {
 
     private String email;
     private Role role;
+    private String password;
 }
