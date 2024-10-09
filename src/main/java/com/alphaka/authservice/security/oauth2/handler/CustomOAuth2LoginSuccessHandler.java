@@ -1,6 +1,7 @@
 package com.alphaka.authservice.security.oauth2.handler;
 
 import com.alphaka.authservice.jwt.JwtService;
+import com.alphaka.authservice.redis.service.RefreshTokenService;
 import com.alphaka.authservice.security.oauth2.user.CustomOAuth2User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -34,5 +35,6 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
+        refreshTokenService.saveRefreshToken(customOAuth2User.getEmail(), refreshToken);
     }
 }
