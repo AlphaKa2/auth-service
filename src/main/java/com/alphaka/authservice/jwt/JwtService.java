@@ -1,5 +1,6 @@
 package com.alphaka.authservice.jwt;
 
+import com.alphaka.authservice.dto.Role;
 import com.alphaka.authservice.dto.SocialType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.common.contenttype.ContentType;
@@ -16,6 +17,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +41,8 @@ public class JwtService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String EMAIL_CLAIM = "email";
-    private static final String SOCIAL_TYPE_CLAIM = "socialType";
+    private static final String ROLE_CLAIM = "role";
+
     private static final String BEARER = "Bearer ";
     private static final String ACCESS_TOKEN_HEADER = "Authorization";
     private static final String REFRESH_TOKEN_COOKIE = "Refresh";
@@ -49,14 +55,14 @@ public class JwtService {
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(String email, SocialType socialType) {
+    public String createAccessToken(String email, Role role) {
         Date now = new Date();
 
         return Jwts
                 .builder()
                 .subject(ACCESS_TOKEN_SUBJECT)
                 .claim(EMAIL_CLAIM, email)
-                .claim(SOCIAL_TYPE_CLAIM, socialType)
+                .claim(ROLE_CLAIM, role)
                 .expiration(new Date(now.getTime() + accessTokeExpirationPeriod))
                 .signWith(key)
                 .compact();
@@ -68,6 +74,7 @@ public class JwtService {
                 .builder()
                 .subject(REFRESH_TOKEN_SUBJECT)
                 .expiration(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .signWith(key)
                 .compact();
     }
 
@@ -122,7 +129,7 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token);
 
-            return !claims.getPayload().getExpiration().after(new Date());
+            return claims.getPayload().getExpiration().after(new Date());
         } catch (JwtException e) {
             log.error("Invalid Token: {}", e.getMessage());
             return false;
@@ -139,12 +146,12 @@ public class JwtService {
         return null;
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
     private static class AccessTokenDto {
 
         String accessToken;
-
-        public AccessTokenDto(String accessToken) {
-            this.accessToken = accessToken;
-        }
     }
 }
