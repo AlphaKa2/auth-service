@@ -7,7 +7,7 @@ import com.alphaka.authservice.security.login.service.CustomUserService;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginFailureHandler;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginSuccessHandler;
 import com.alphaka.authservice.security.oauth2.service.CustomOAuth2UserService;
-import com.alphaka.authservice.security.reissue.filter.TokenReissueFilter;
+import com.alphaka.authservice.reissue.filter.TokenReissueFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

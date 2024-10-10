@@ -1,4 +1,4 @@
-package com.alphaka.authservice.security.reissue.filter;
+package com.alphaka.authservice.reissue.filter;
 
 import com.alphaka.authservice.dto.Role;
 import com.alphaka.authservice.jwt.JwtService;
