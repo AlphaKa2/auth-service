@@ -13,4 +13,11 @@ public enum Role {
     public String getValue() {
         return value;
     }
+
+    public static Role getRole(String role) {
+        if (role.contains("USER")) {
+            return USER;
+        }
+        return ADMIN;
+    }
 }

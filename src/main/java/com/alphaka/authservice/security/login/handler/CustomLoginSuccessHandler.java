@@ -7,8 +7,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -25,7 +27,14 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                                         Authentication authentication) throws IOException, ServletException {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
-        String accessToken = jwtService.createAccessToken(email, Role.USER);
+
+        Role role = Role.getRole(userDetails.getAuthorities()
+                .stream()
+                .toList()
+                .get(0)
+                .getAuthority());
+
+        String accessToken = jwtService.createAccessToken(email, role);
         String refreshToken = jwtService.createRefreshToken();
 
         try {
@@ -34,6 +43,6 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
-        refreshTokenService.saveRefreshToken(email, refreshToken);
+        refreshTokenService.saveRefreshToken(email, refreshToken, role);
     }
 }

@@ -74,6 +74,7 @@ public class JwtService {
                 .builder()
                 .subject(REFRESH_TOKEN_SUBJECT)
                 .expiration(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .signWith(key)
                 .compact();
     }
 
@@ -128,7 +129,7 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token);
 
-            return !claims.getPayload().getExpiration().after(new Date());
+            return claims.getPayload().getExpiration().after(new Date());
         } catch (JwtException e) {
             log.error("Invalid Token: {}", e.getMessage());
             return false;

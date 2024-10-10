@@ -35,6 +35,6 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
-        refreshTokenService.saveRefreshToken(customOAuth2User.getEmail(), refreshToken);
+        refreshTokenService.saveRefreshToken(customOAuth2User.getEmail(), refreshToken, customOAuth2User.getRole());
     }
 }

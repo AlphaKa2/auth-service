@@ -7,6 +7,7 @@ import com.alphaka.authservice.security.login.service.CustomUserService;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginFailureHandler;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginSuccessHandler;
 import com.alphaka.authservice.security.oauth2.service.CustomOAuth2UserService;
+import com.alphaka.authservice.security.reissue.filter.TokenReissueFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @EnableWebSecurity
@@ -34,6 +36,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final TokenReissueFilter tokenReissueFilter;
 
 
     @Bean
@@ -54,6 +57,7 @@ public class SecurityConfig {
                 );
 
         http.addFilterAfter(customUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
+        http.addFilterBefore(tokenReissueFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
