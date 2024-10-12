@@ -3,6 +3,7 @@ package com.alphaka.authservice.sms.controller;
 
 import com.alphaka.authservice.dto.request.SmsAuthenticationRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;
+import com.alphaka.authservice.exception.custom.SmsVerificationFailureException;
 import com.alphaka.authservice.sms.service.SmsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,7 @@ public class SmsController {
         if (smsService.verifyAuthenticationCode(request.getPhoneNumber(), request.getAuthenticationCode())) {
             return ApiResponse.createSuccessResponse(HttpStatus.ACCEPTED.value());
         }
-        return ApiResponse.createErrorResponseWithExceptions(HttpStatus.NOT_ACCEPTABLE.value(),
-                new IllegalArgumentException("인증에 실패하였습니다.").getMessage());
+        throw new SmsVerificationFailureException();
     }
 
 }

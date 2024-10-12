@@ -1,4 +1,4 @@
-package com.alphaka.authservice.client;
+package com.alphaka.authservice.openfeign;
 
 import com.alphaka.authservice.dto.request.UserSignInRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;

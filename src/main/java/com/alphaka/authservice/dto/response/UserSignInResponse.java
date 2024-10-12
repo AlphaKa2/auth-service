@@ -1,7 +1,6 @@
 package com.alphaka.authservice.dto.response;
 
 import com.alphaka.authservice.dto.Role;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +8,9 @@ import lombok.Setter;
 @Setter
 public class UserSignInResponse {
 
-    private String email;
+    private Long id;
+    private String profileImage;
+    private String nickname;
     private Role role;
     private String password;
 }
