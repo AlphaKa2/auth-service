@@ -4,6 +4,8 @@ import com.alphaka.authservice.security.login.filter.CustomUsernamePasswordAuthe
 import com.alphaka.authservice.security.login.handler.CustomLoginFailureHandler;
 import com.alphaka.authservice.security.login.handler.CustomLoginSuccessHandler;
 import com.alphaka.authservice.security.login.service.CustomUserService;
+import com.alphaka.authservice.security.logout.handler.CustomLogoutHandler;
+import com.alphaka.authservice.security.logout.handler.CustomLogoutSuccessHandler;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginFailureHandler;
 import com.alphaka.authservice.security.oauth2.handler.CustomOAuth2LoginSuccessHandler;
 import com.alphaka.authservice.security.oauth2.service.CustomOAuth2UserService;
@@ -37,7 +39,8 @@ public class SecurityConfig {
     private final CustomOAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final TokenReissueFilter tokenReissueFilter;
-
+    private final CustomLogoutHandler customLogoutHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,7 +57,14 @@ public class SecurityConfig {
                         oauth2.userInfoEndpoint(endpoint -> endpoint.userService(customOAuth2UserService))
                                 .successHandler(oAuth2LoginSuccessHandler)
                                 .failureHandler(oAuth2LoginFailureHandler)
+                )
+
+                .logout(logout ->
+                        logout.logoutUrl("/logout")
+                                .addLogoutHandler(customLogoutHandler)
+                                .logoutSuccessHandler(customLogoutSuccessHandler)
                 );
+
 
         http.addFilterAfter(customUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
         http.addFilterBefore(tokenReissueFilter, UsernamePasswordAuthenticationFilter.class);

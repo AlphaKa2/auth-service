@@ -1,4 +1,4 @@
-package com.alphaka.authservice.client;
+package com.alphaka.authservice.openfeign;
 
 import com.alphaka.authservice.dto.request.UserSignInRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;
@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "user-service")
+@FeignClient(name = "USER-SERVICE")
 public interface UserServiceClient {
 
     @PostMapping("/oauth2/users/signin")
