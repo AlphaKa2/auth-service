@@ -1,4 +1,4 @@
-package com.alphaka.authservice.handler;
+package com.alphaka.authservice.exception.handler;
 
 
 import com.alphaka.authservice.dto.response.ApiResponse;

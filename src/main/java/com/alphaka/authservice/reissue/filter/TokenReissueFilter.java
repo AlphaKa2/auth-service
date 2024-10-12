@@ -3,7 +3,6 @@ package com.alphaka.authservice.reissue.filter;
 import com.alphaka.authservice.dto.Role;
 import com.alphaka.authservice.jwt.JwtService;
 import com.alphaka.authservice.redis.entity.RefreshToken;
-import com.alphaka.authservice.redis.repository.RefreshTokenRepository;
 import com.alphaka.authservice.redis.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
