@@ -1,15 +1,14 @@
 package com.alphaka.authservice.security.login.handler;
 
-import com.alphaka.authservice.dto.Role;
 import com.alphaka.authservice.jwt.JwtService;
 import com.alphaka.authservice.redis.service.RefreshTokenService;
+import com.alphaka.authservice.security.login.user.CustomUser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +22,12 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
+        CustomUser userDetails = (CustomUser) authentication.getPrincipal();
 
-        Role role = Role.getRole(userDetails.getAuthorities()
-                .stream()
-                .toList()
-                .get(0)
-                .getAuthority());
+        Long id = Long.parseLong(userDetails.getUsername());
 
-        String accessToken = jwtService.createAccessToken(email, role);
+        String accessToken = jwtService.createAccessToken(id, userDetails.getNickname(),
+                userDetails.getProfileImage(), userDetails.getRole());
         String refreshToken = jwtService.createRefreshToken();
 
         try {
@@ -41,6 +36,6 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
-        refreshTokenService.saveRefreshToken(email, refreshToken, role);
+        refreshTokenService.saveRefreshToken(String.valueOf(id), refreshToken);
     }
 }

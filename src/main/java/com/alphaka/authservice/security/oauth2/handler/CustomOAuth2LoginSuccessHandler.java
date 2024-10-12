@@ -26,7 +26,8 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
 
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        String accessToken = jwtService.createAccessToken(customOAuth2User.getEmail(), customOAuth2User.getRole());
+        String accessToken = jwtService.createAccessToken(customOAuth2User.getId(), customOAuth2User.getNickname(),
+                customOAuth2User.getProfileImage(), customOAuth2User.getRole());
         String refreshToken = jwtService.createRefreshToken();
 
         try {
@@ -35,6 +36,6 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
             throw new RuntimeException(e);
         }
 
-        refreshTokenService.saveRefreshToken(customOAuth2User.getEmail(), refreshToken, customOAuth2User.getRole());
+        refreshTokenService.saveRefreshToken(String.valueOf(customOAuth2User.getId()), refreshToken);
     }
 }

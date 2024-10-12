@@ -1,6 +1,6 @@
 package com.alphaka.authservice.security.oauth2.service;
 
-import com.alphaka.authservice.client.UserServiceClient;
+import com.alphaka.authservice.openfeign.UserServiceClient;
 import com.alphaka.authservice.dto.SocialType;
 import com.alphaka.authservice.dto.request.OAuth2SignInRequest;
 import com.alphaka.authservice.dto.response.UserSignInResponse;
@@ -38,7 +38,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue())),
                 attributes,
                 userNameAttributeName,
-                user.getEmail(),
+                user.getId(),
+                user.getNickname(),
+                user.getProfileImage(),
                 user.getRole()
         );
     }
