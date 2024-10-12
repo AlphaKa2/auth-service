@@ -1,10 +1,7 @@
 package com.alphaka.authservice.exception;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-
-@Getter
 public record ErrorCode(int status, String code, String message) {
 
     public static final ErrorCode INVALID_REFRESH_TOKEN =

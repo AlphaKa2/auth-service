@@ -1,7 +1,6 @@
 package com.alphaka.authservice.jwt;
 
 import com.alphaka.authservice.dto.Role;
-import com.alphaka.authservice.dto.SocialType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.common.contenttype.ContentType;
 import io.jsonwebtoken.Claims;
@@ -40,8 +39,11 @@ public class JwtService {
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    private static final String EMAIL_CLAIM = "email";
+    private static final String ID_CLAIM = "id";
     private static final String ROLE_CLAIM = "role";
+    private static final String NICKNAME_CLAIM = "nickname";
+    private static final String PROFILE_CLAIM = "profile";
+
 
     private static final String BEARER = "Bearer ";
     private static final String ACCESS_TOKEN_HEADER = "Authorization";
@@ -55,13 +57,15 @@ public class JwtService {
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(String email, Role role) {
+    public String createAccessToken(Long id, String nickname, String profile, Role role) {
         Date now = new Date();
 
         return Jwts
                 .builder()
                 .subject(ACCESS_TOKEN_SUBJECT)
-                .claim(EMAIL_CLAIM, email)
+                .claim(ID_CLAIM, id)
+                .claim(NICKNAME_CLAIM, nickname)
+                .claim(PROFILE_CLAIM, profile)
                 .claim(ROLE_CLAIM, role)
                 .expiration(new Date(now.getTime() + accessTokeExpirationPeriod))
                 .signWith(key)
@@ -78,24 +82,16 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        try {
-            return Jwts
-                    .parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("email", String.class);
-        } catch (JwtException e) {
-            log.error("Invalid Token: {}", e.getMessage());
-            return null;
-        }
-    }
+    public void expireRefreshTokenCookie(HttpServletResponse response) {
 
-    public Optional<String> extractAccessToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(ACCESS_TOKEN_HEADER))
-                .map(token -> token.replace(BEARER, ""));
+        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, null);
+        refreshTokenCookie.setHttpOnly(true);
+        //refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setPath("/");
+
+        // 응답에 쿠키를 추가하여 삭제
+        response.addCookie(refreshTokenCookie);
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {

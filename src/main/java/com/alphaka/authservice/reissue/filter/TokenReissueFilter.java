@@ -1,7 +1,9 @@
 package com.alphaka.authservice.reissue.filter;
 
-import com.alphaka.authservice.dto.Role;
+import com.alphaka.authservice.dto.response.UserSignInResponse;
+import com.alphaka.authservice.exception.custom.InvalidRefreshTokenException;
 import com.alphaka.authservice.jwt.JwtService;
+import com.alphaka.authservice.openfeign.UserServiceClient;
 import com.alphaka.authservice.redis.entity.RefreshToken;
 import com.alphaka.authservice.redis.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
@@ -21,6 +23,7 @@ public class TokenReissueFilter extends OncePerRequestFilter {
     private static final String DEFAULT_REISSUE_REQUEST_URL = "/reissue";
 
     private final JwtService jwtService;
+    private final UserServiceClient userServiceClient;
     private final RefreshTokenService refreshTokenService;
 
     @Override
@@ -44,20 +47,21 @@ public class TokenReissueFilter extends OncePerRequestFilter {
                 // 레디스에 리프레시토큰이 없거나, 요청에 들어온 토큰과 다름
                 if (maybeRefreshToken.isEmpty() || !maybeRefreshToken.get().getRefreshToken()
                         .equals(maybeRefreshTokenFromRequest.get())) {
-                    throw new Exception();
+                    throw new InvalidRefreshTokenException();
                 }
 
-                String email = maybeRefreshToken.get().getEmail();
-                Role role = maybeRefreshToken.get().getRole();
-                String newAccessToken = jwtService.createAccessToken(email, role);
+                Long userId = Long.parseLong(maybeRefreshToken.get().getId());
+
+                UserSignInResponse user = userServiceClient.user(userId).getData();
+                String newAccessToken = jwtService.createAccessToken(userId, user.getNickname(),
+                        user.getProfileImage(), user.getRole());
                 String newRefreshToken = jwtService.createRefreshToken();
 
                 jwtService.setAccessTokenAndRefreshToken(response, newAccessToken, newRefreshToken);
-                refreshTokenService.saveRefreshToken(email, newRefreshToken, role);
+                refreshTokenService.saveRefreshToken(String.valueOf(userId), newRefreshToken);
 
             } else {
-                // 리프레시토큰이 없거나, 유효하지 않음
-                throw new Exception();
+                throw new InvalidRefreshTokenException();
             }
         } catch (Exception e) {
             response.sendRedirect("http://127.0.0.1:3000");

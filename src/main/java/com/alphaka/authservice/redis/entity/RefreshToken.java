@@ -1,6 +1,5 @@
 package com.alphaka.authservice.redis.entity;
 
-import com.alphaka.authservice.dto.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +14,11 @@ import org.springframework.data.redis.core.index.Indexed;
 @Getter
 public class RefreshToken {
 
+    //레디스에선 키로 사용할 값이 문자열이어야 한다.
     @Id
-    private String email;
+    private String id;
     @Indexed
     private String refreshToken;
-    private Role role;
 
     @TimeToLive
     private long ttl;
