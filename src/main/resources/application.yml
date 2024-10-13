@@ -26,6 +26,11 @@ spring:
               - profile
               - email
 
+  kafka:
+    bootstrap-servers: "${BROKER_URL}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 #유레카 클라이언트 등록
 eureka:
