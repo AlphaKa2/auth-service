@@ -98,6 +98,12 @@ public class JwtService {
         return Optional.ofNullable(findCookieByName(request, REFRESH_TOKEN_COOKIE));
     }
 
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(ACCESS_TOKEN_HEADER))
+                .filter(token -> token.startsWith(BEARER))
+                .map(token -> token.replace(BEARER, ""));
+    }
+
     public void setAccessTokenAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken)
             throws Exception {
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
