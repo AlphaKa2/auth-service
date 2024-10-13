@@ -1,6 +1,5 @@
 package com.alphaka.authservice.security.login.filter;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,6 +48,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email,
                 password);
+
+        //로그아웃 실패 시, 이메일 정보를 사용하기 위해 임시 저장
+        request.setAttribute("X-Login-Attempt-Email", email);
 
         return this.getAuthenticationManager().authenticate(authRequest);
     }

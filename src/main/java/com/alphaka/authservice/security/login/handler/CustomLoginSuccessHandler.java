@@ -1,6 +1,7 @@
 package com.alphaka.authservice.security.login.handler;
 
 import com.alphaka.authservice.jwt.JwtService;
+import com.alphaka.authservice.redis.service.LoginAttemptService;
 import com.alphaka.authservice.redis.service.RefreshTokenService;
 import com.alphaka.authservice.security.login.user.CustomUser;
 import jakarta.servlet.ServletException;
@@ -18,6 +19,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -29,6 +31,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String accessToken = jwtService.createAccessToken(id, userDetails.getNickname(),
                 userDetails.getProfileImage(), userDetails.getRole());
         String refreshToken = jwtService.createRefreshToken();
+        String email = (String) request.getAttribute("X-Login-Attempt-Email");
 
         try {
             jwtService.setAccessTokenAndRefreshToken(response, accessToken, refreshToken);
@@ -37,5 +40,6 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         refreshTokenService.saveRefreshToken(String.valueOf(id), refreshToken);
+        loginAttemptService.loginSuccess(email);
     }
 }
