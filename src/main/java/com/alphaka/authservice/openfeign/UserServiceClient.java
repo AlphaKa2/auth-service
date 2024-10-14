@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "USER-SERVICE")
 public interface UserServiceClient {
 
-    @PostMapping("/oauth2/users/signin")
+    @PostMapping("/users/oauth2/signin")
     ApiResponse<UserSignInResponse> oauth2SignIn(@RequestBody OAuth2SignInRequest oAuth2SignInRequest);
 
     @PostMapping("/users/signin")
