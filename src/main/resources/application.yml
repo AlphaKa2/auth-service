@@ -56,3 +56,5 @@ coolsms:
     secret: "${COOLSMS_API_SECRET}"
     number: "${COOLSMS_NUMBER}"
     url: "${COOLSMS_API_URL}"
+
+test: hi
