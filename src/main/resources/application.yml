@@ -1,0 +1,60 @@
+#포트 설정
+server:
+  port: 8002
+
+spring:
+  config:
+    import: file:.env[.properties]
+  application:
+    name: auth-service
+
+  redis:
+    host: "${REDIS_HOST}"
+    port: "${REDIS_PORT}"
+    password: "${REDIS_PASSWORD}"
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - profile
+              - email
+
+  kafka:
+    bootstrap-servers: "${BROKER_URL}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+#유레카 클라이언트 등록
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: "${EUREKA_URL}"
+
+
+#JWT 설정
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  access:
+    expiration: 3600000
+  refresh:
+    expiration: 604800000
+
+#COOL SMS API
+coolsms:
+  api:
+    key: "${COOLSMS_API_KEY}"
+    secret: "${COOLSMS_API_SECRET}"
+    number: "${COOLSMS_NUMBER}"
+    url: "${COOLSMS_API_URL}"
+
+test: hi
