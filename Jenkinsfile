@@ -57,7 +57,7 @@ pipeline {
                 script {
                     withCredentials([
                             sshUserPrivateKey(credentialsId: 'jenkins-ssh', keyFileVariable: 'SSH_KEY'),
-                            string(credentialsId: 'vm-cloud-address', variable: 'VM_ADDRESS')
+                            string(credentialsId: 'vm-app1-address', variable: 'VM_ADDRESS')
                     ]) {
 
                         // 미리 작성해둔 deploy.sh 실행
