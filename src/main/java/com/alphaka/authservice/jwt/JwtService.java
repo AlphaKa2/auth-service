@@ -120,9 +120,29 @@ public class JwtService {
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken);
+        Claims claims = decodeAccessToken(accessToken);
+
+        AuthenticationResponse authenticationResponse =
+                AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .userId(claims.get(ID_CLAIM, Long.class))
+                        .nickname(claims.get(NICKNAME_CLAIM, String.class))
+                        .profileImageUrl(claims.get(PROFILE_CLAIM, String.class))
+                        .build();
+
         String jsonResponse = objectMapper.writeValueAsString(authenticationResponse);
         response.getWriter().write(jsonResponse);
+    }
+
+    private Claims decodeAccessToken(String accessToken) {
+
+        return Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(accessToken)
+                .getPayload();
+
     }
 
     public boolean isValidToken(String token) {
@@ -150,7 +170,6 @@ public class JwtService {
         return null;
     }
 
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
@@ -162,28 +181,5 @@ public class JwtService {
         String nickname;
         String profileImageUrl;
         String accessToken;
-
-
-        public AuthenticationResponse(String accessToken) {
-            Claims claims = decodeAccessToken(accessToken);
-
-            this.accessToken = accessToken;
-            this.userId = claims.get(ID_CLAIM, Long.class);
-            this.profileImageUrl = claims.get(PROFILE_CLAIM, String.class);
-            this.nickname = claims.get(PROFILE_CLAIM, String.class);
-
-        }
-
-
-        private Claims decodeAccessToken(String accessToken) {
-
-            return Jwts
-                    .parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(accessToken)
-                    .getPayload();
-
-        }
     }
 }
