@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -118,8 +119,9 @@ public class JwtService {
 
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        AccessTokenDto accessTokenResponse = new AccessTokenDto(accessToken);
-        String jsonResponse = objectMapper.writeValueAsString(accessTokenResponse);
+
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken);
+        String jsonResponse = objectMapper.writeValueAsString(authenticationResponse);
         response.getWriter().write(jsonResponse);
     }
 
@@ -148,12 +150,40 @@ public class JwtService {
         return null;
     }
 
+
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     @Getter
     @Setter
-    private static class AccessTokenDto {
+    private static class AuthenticationResponse {
 
+        Long userId;
+        String nickname;
+        String profileImageUrl;
         String accessToken;
+
+
+        public AuthenticationResponse(String accessToken) {
+            Claims claims = decodeAccessToken(accessToken);
+
+            this.accessToken = accessToken;
+            this.userId = claims.get(ID_CLAIM, Long.class);
+            this.profileImageUrl = claims.get(PROFILE_CLAIM, String.class);
+            this.nickname = claims.get(PROFILE_CLAIM, String.class);
+
+        }
+
+
+        private Claims decodeAccessToken(String accessToken) {
+
+            return Jwts
+                    .parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(accessToken)
+                    .getPayload();
+
+        }
     }
 }
