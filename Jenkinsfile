@@ -17,7 +17,7 @@ pipeline {
 
         // 도커 허브 및 깃허브 자격증명
         DOCKERHUB_CREDENTIAL = 'dockerhub-credential-alphaka'
-        GITHUB_CREDENTIAL = 'git-credential'
+        GITHUB_CREDENTIAL = 'git-credential-hojun'
 
         // 매니페스트 저장소
         MANIFEST_REPO = 'github.com/AlphaKa2/k8s-manifest.git'
@@ -82,7 +82,7 @@ pipeline {
                             sed -i 's/\\${IMAGE_TAG}/'"${DOCKER_TAG}"'/g' ${OVERLAY_PATH}/deployment-patch.yaml
                         else
                             # 이후 빌드일 경우 기존 태그를 새로운 DOCKER_TAG로 대체
-                            sed -i 's/alphaka\\/blog-service:[^ ]*/alphaka\\/blog-service:'"${DOCKER_TAG}"'/g' ${OVERLAY_PATH}/deployment-patch.yaml
+                            sed -i 's/alphaka\\/auth-service:[^ ]*/alphaka\\/auth-service:'"${DOCKER_TAG}"'/g' ${OVERLAY_PATH}/deployment-patch.yaml
                         fi
 
                         # Git 설정
