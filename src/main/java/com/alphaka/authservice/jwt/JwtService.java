@@ -92,6 +92,7 @@ public class JwtService {
         refreshTokenCookie.setPath("/");
 
         // 응답에 쿠키를 추가하여 삭제
+        log.info("사용자의 refreshToken 쿠키 만료");
         response.addCookie(refreshTokenCookie);
     }
 
@@ -107,6 +108,8 @@ public class JwtService {
 
     public void setAccessTokenAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken)
             throws Exception {
+        log.info("응답에 accessToken, refreshToken 추가");
+
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
         int refreshTokenCookieMaxAge = 14 * 24 * 60 * 60;
 
@@ -147,15 +150,22 @@ public class JwtService {
 
     public boolean isValidToken(String token) {
         try {
+            log.info("토큰 {}에 대한 검증 시작", token);
+
             Jws<Claims> claims = Jwts
                     .parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
 
-            return claims.getPayload().getExpiration().after(new Date());
+            if (!claims.getPayload().getExpiration().after(new Date())) {
+                log.info("토큰의 유효기간이 지났습니다. {}", token);
+                return false;
+            }
+            return true;
         } catch (JwtException e) {
-            log.error("Invalid Token: {}", e.getMessage());
+            log.error("토큰 해독 중 문제가 발생했습니다. {}", token);
+            log.error("{}", e.getMessage());
             return false;
         }
     }

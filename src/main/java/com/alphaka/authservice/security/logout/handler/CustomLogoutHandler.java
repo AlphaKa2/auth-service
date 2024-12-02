@@ -8,11 +8,13 @@ import com.alphaka.authservice.redis.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler {
 
@@ -24,6 +26,7 @@ public class CustomLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 
         String id = request.getHeader(AUTHENTICATED_USER_ID_HEADER.getName());
+        log.info("유저{}의 로그아웃 요청", id);
 
         //사용자의 리프레시 토큰 쿠키 삭제
         jwtService.expireRefreshTokenCookie(response);

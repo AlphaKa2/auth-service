@@ -9,6 +9,7 @@ import com.alphaka.authservice.security.oauth2.user.CustomOAuth2UserDto;
 import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
@@ -34,6 +36,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         CustomOAuth2UserDto customOAuth2UserDto = new CustomOAuth2UserDto(socialType, attributes);
         UserSignInResponse user = getUser(customOAuth2UserDto);
+
+        log.info("소셜 로그인 유저({}) {} 조회 성공. ", user.getId(), user.getNickname());
         return new CustomOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRole().getValue())),
                 attributes,
@@ -46,6 +50,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private UserSignInResponse getUser(CustomOAuth2UserDto customOAuth2UserDto) {
+        log.info("유저 서비스에 소셜 로그인 유저 조회");
         return userServiceClient.oauth2SignIn(
                 OAuth2SignInRequest.from(customOAuth2UserDto)).getData();
     }
