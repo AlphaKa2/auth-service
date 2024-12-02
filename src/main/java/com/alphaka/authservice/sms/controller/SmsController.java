@@ -2,6 +2,7 @@ package com.alphaka.authservice.sms.controller;
 
 
 import com.alphaka.authservice.dto.request.SmsAuthenticationRequest;
+import com.alphaka.authservice.dto.request.SmsVerificationRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;
 import com.alphaka.authservice.exception.custom.SmsVerificationFailureException;
 import com.alphaka.authservice.sms.service.SmsService;
@@ -14,19 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class SmsController {
+public class SmsController implements SmsApi {
 
     private final SmsService smsService;
 
     //인증 코드 sms 전송
+    @Override
     @PostMapping("/sms/authentication")
     public ApiResponse sendAuthenticationCode(@RequestBody @Valid SmsAuthenticationRequest request) {
         smsService.sendAuthenticationMessage(request.getPhoneNumber());
         return ApiResponse.createSuccessResponse(HttpStatus.OK.value());
     }
 
+    @Override
     @PostMapping("/sms/verification")
-    public ApiResponse verifyAuthenticationCode(@RequestBody @Valid SmsAuthenticationRequest request) {
+    public ApiResponse verifyAuthenticationCode(@RequestBody @Valid SmsVerificationRequest request) {
         if (smsService.verifyAuthenticationCode(request.getPhoneNumber(), request.getAuthenticationCode())) {
             return ApiResponse.createSuccessResponse(HttpStatus.ACCEPTED.value());
         }
