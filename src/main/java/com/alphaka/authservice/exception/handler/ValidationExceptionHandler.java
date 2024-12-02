@@ -1,10 +1,7 @@
 package com.alphaka.authservice.exception.handler;
 
-
-import com.alphaka.authservice.dto.response.ApiResponse;
 import com.alphaka.authservice.dto.response.ErrorResponse;
-import java.util.HashMap;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class ValidationExceptionHandler {
 
     private static final String VALIDATION_FAIL_CODE = "USR-009";
@@ -21,6 +19,8 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
+
+        log.error("요청에 대한 검증이 실패하였습니다.");
 
         // 모든 필드 오류를 수집
         StringBuilder message = new StringBuilder();

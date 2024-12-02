@@ -3,6 +3,7 @@ package com.alphaka.authservice.exception.handler;
 import com.alphaka.authservice.dto.response.ErrorResponse;
 import com.alphaka.authservice.exception.ErrorCode;
 import com.alphaka.authservice.exception.custom.CustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException exception) {
+
         ErrorCode errorCode = exception.getErrorCode();
         ErrorResponse errorResponse = new ErrorResponse(
                 errorCode.status(),
