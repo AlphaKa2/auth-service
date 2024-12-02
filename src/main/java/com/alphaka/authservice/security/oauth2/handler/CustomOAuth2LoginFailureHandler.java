@@ -17,7 +17,7 @@ public class CustomOAuth2LoginFailureHandler implements AuthenticationFailureHan
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-        log.info("oauth 로그인 에러: {}", exception.getMessage());
+        log.info("소셜 로그인 실패: {}", exception.getMessage());
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 }

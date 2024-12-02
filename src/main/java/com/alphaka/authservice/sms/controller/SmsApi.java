@@ -82,7 +82,7 @@ public interface SmsApi {
                                             name = "정상 응답",
                                             value = """
                                             {
-                                                "status": 201
+                                                "status": 202
                                             }
                                             """
                                     ),
@@ -96,7 +96,7 @@ public interface SmsApi {
                             mediaType = "application/json",
                             examples = {
                                     @ExampleObject(
-                                            name = "검증 실패",
+                                            name = "파라미터 검증 실패",
                                             value = """
                                                     {
                                                         "status": 400,
@@ -112,6 +112,16 @@ public interface SmsApi {
                                                         "status": 400,
                                                          "code": "USR009",
                                                          "message": "읽을 수 없는 요청입니다."
+                                                    }
+                                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "잘못된 인증 코드",
+                                            value = """
+                                                    {
+                                                        "status": 400,
+                                                         "code": "USR004",
+                                                         "message": "인증번호가 일치하지 않습니다."
                                                     }
                                                     """
                                     )

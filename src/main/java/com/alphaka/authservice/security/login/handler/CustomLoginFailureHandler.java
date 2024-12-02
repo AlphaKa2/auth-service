@@ -23,11 +23,12 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-        log.info("자체 로그인 에러: {}", exception.getMessage());
+        log.info("자체 로그인 실패: {}", exception.getMessage());
 
         // 비밀번호 틀린 경우
         if (exception instanceof BadCredentialsException) {
             String email = (String) request.getAttribute("X-Login-Attempt-Email");
+            log.info("틀린 비밀번호 입니다.");
             loginAttemptService.loginFail(email);
         }
 
