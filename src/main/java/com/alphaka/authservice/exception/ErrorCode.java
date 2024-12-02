@@ -9,6 +9,9 @@ public record ErrorCode(int status, String code, String message) {
     public static final ErrorCode SMS_VERIFICATION_FAILURE =
             new ErrorCode(HttpStatus.BAD_REQUEST.value(), "USR004", "인증번호가 일치하지 않습니다.");
 
-    public static final ErrorCode AUTHENTICATION_FAILRUE =
+    public static final ErrorCode AUTHENTICATION_FAILURE =
             new ErrorCode(HttpStatus.UNAUTHORIZED.value(), "USR013", "이메일 혹은 비밀번호가 일치하지 않습니다.");
+
+    public static final ErrorCode DESERIALIZATION_FAILURE =
+            new ErrorCode(HttpStatus.BAD_REQUEST.value(), "USR009", "읽을 수 없는 요청입니다.");
 }

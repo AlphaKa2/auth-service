@@ -41,6 +41,9 @@ dependencies {
     // 클라우드 쿠버네티스에서 의존
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
+    //Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'net.nurigo:sdk:4.3.0'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
