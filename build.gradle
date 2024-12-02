@@ -32,6 +32,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.3'
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3'
 
+    // AOP
+    implementation 'org.springframework:spring-aop:6.1.13'
+    implementation 'org.aspectj:aspectjweaver:1.9.19'
+
+
     // configMap, Secret을 먼저 불러오기 위해 bootstrap 활성화
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
     // spring-cloud-kubernetes
