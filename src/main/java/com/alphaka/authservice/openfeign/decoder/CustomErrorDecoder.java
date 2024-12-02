@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
-
+@Slf4j
 public class CustomErrorDecoder implements ErrorDecoder {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -18,6 +19,7 @@ public class CustomErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
 
         try {
+            log.error("오픈페인 요청 중 오류가 발생했습니다.");
             ErrorResponse errorResponse = objectMapper.readValue(response.body().asInputStream(), ErrorResponse.class);
 
             return new CustomException(new ErrorCode(errorResponse.getStatus(), errorResponse.getCode(),
