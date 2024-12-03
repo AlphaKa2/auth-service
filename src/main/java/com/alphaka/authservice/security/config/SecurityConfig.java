@@ -76,6 +76,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(customUserService);
+        // UserNotFoundException을 BadCredentialException으로 변환하지 않게 한다.
+        provider.setHideUserNotFoundExceptions(false);
         return new ProviderManager(provider);
     }
 

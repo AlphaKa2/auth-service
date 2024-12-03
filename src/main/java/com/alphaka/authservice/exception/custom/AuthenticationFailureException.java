@@ -5,6 +5,6 @@ import com.alphaka.authservice.exception.ErrorCode;
 public class AuthenticationFailureException extends CustomException {
 
     public AuthenticationFailureException() {
-        super(ErrorCode.AUTHENTICATION_FAILURE);
+        super(ErrorCode.INVALID_EMAIL_OR_PASSWORD);
     }
 }
