@@ -3,6 +3,7 @@ package com.alphaka.authservice.sms.controller;
 import com.alphaka.authservice.dto.request.SmsAuthenticationRequest;
 import com.alphaka.authservice.dto.request.SmsVerificationRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;
+import com.alphaka.authservice.dto.response.SmsVerificationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -69,7 +70,7 @@ public interface SmsApi {
 
     @Operation(
             summary = "인증번호 검증",
-            description = "사용자가 입력한 인증번호가 유효한지 검증을 요청하는 API입니다.",
+            description = "사용자가 입력한 인증번호가 유효한지 검증을 요청하는 API입니다. ",
             tags = {"External API"}
     )
     @ApiResponses(value = {
@@ -81,10 +82,13 @@ public interface SmsApi {
                                     @ExampleObject(
                                             name = "정상 응답",
                                             value = """
-                                            {
-                                                "status": 202
-                                            }
-                                            """
+                                                    {
+                                                        "status": 202,
+                                                        "data": {
+                                                            "smsConfirmation" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTbXNDb25maXJtYXRpb24iLCJleHAiOjE3MzM0NjI4MjMsInBob25lTnVtYmVyIjoiMDEwMDAwMDAwMDAifQ.8Lur3HULIkGPJeqZOB1cqduqpp8DeFbCoYE3GCiv31qTV_GrOr6oi7NerhaWXkslcNKJIdECJQtWDdlw2vQmgw"
+                                                        }
+                                                    }
+                                                    """
                                     ),
 
                             }
@@ -130,6 +134,7 @@ public interface SmsApi {
                     )
             )
     })
-    ApiResponse verifyAuthenticationCode(@RequestBody @Valid SmsVerificationRequest request);
+    ApiResponse<SmsVerificationResponse> verifyAuthenticationCode(
+            @RequestBody @Valid SmsVerificationRequest request);
 
 }
