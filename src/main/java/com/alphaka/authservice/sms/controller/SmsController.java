@@ -4,6 +4,7 @@ package com.alphaka.authservice.sms.controller;
 import com.alphaka.authservice.dto.request.SmsAuthenticationRequest;
 import com.alphaka.authservice.dto.request.SmsVerificationRequest;
 import com.alphaka.authservice.dto.response.ApiResponse;
+import com.alphaka.authservice.dto.response.SmsVerificationResponse;
 import com.alphaka.authservice.sms.service.SmsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,16 @@ public class SmsController implements SmsApi {
 
     @Override
     @PostMapping("/sms/verification")
-    public ApiResponse verifyAuthenticationCode(@RequestBody @Valid SmsVerificationRequest request) {
+    public ApiResponse<SmsVerificationResponse> verifyAuthenticationCode(
+            @RequestBody @Valid SmsVerificationRequest request) {
         log.info("인증 코드 검증 요청");
-        smsService.verifyAuthenticationCode(request.getPhoneNumber(), request.getAuthenticationCode());
+        SmsVerificationResponse smsVerificationResponse = smsService.verifyAuthenticationCodeAndGetSmsConfirmationToken(
+                request.getPhoneNumber(),
+                request.getAuthenticationCode()
+        );
 
         log.info("인증 코드 검증 요청 완료");
-        return ApiResponse.createSuccessResponse(HttpStatus.ACCEPTED.value());
+        return ApiResponse.createSuccessResponseWithData(HttpStatus.ACCEPTED.value(), smsVerificationResponse);
     }
 
 }

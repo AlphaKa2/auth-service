@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SmsAuthenticationCodeService {
 
-    private final long AUTHENTICATION_CODE_TTL = 300L;
+    private final long AUTHENTICATION_CODE_TTL = 180L;
 
     private final SmsAuthenticationCodeRepostiory smsAuthenticationCodeRepostiory;
 

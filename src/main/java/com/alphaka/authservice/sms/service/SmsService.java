@@ -1,10 +1,11 @@
 package com.alphaka.authservice.sms.service;
 
+import com.alphaka.authservice.dto.response.SmsVerificationResponse;
 import com.alphaka.authservice.exception.custom.SmsVerificationFailureException;
+import com.alphaka.authservice.jwt.JwtService;
 import com.alphaka.authservice.redis.entity.SmsAuthenticationCode;
 import com.alphaka.authservice.redis.service.SmsAuthenticationCodeService;
 import jakarta.annotation.PostConstruct;
-import java.util.Optional;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class SmsService {
     private String apiUrl;
 
     private final SmsAuthenticationCodeService smsAuthenticationCodeService;
+    private final JwtService jwtService;
 
     private DefaultMessageService messageService;
 
@@ -57,8 +59,24 @@ public class SmsService {
         smsAuthenticationCodeService.saveAuthenticationCode(destination, authenticationCode);
     }
 
-    public void verifyAuthenticationCode(String destination, String authenticationCode) {
+    public SmsVerificationResponse verifyAuthenticationCodeAndGetSmsConfirmationToken(String destination,
+                                                                                      String authenticationCode) {
 
+        verifyAuthenticationCode(destination, authenticationCode);
+
+        String smsConfirmationToken = jwtService.createSmsConfirmationToken(destination);
+        log.info("SMS 인증 확인 토큰({}) 생성 완료", smsConfirmationToken);
+
+        System.out.println(jwtService.createSmsConfirmationToken("01000000000"));
+        return new SmsVerificationResponse(smsConfirmationToken);
+    }
+
+    private String generateAuthenticationCode() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));
+    }
+
+    private void verifyAuthenticationCode(String destination, String authenticationCode) {
         SmsAuthenticationCode validAuthenticationCode = smsAuthenticationCodeService
                 .getAuthenticationCodeByNumber(destination)
                 .orElseThrow(() -> {
@@ -73,11 +91,5 @@ public class SmsService {
             log.error("전화번호({})에 대한 일치하지 않는 인증 코드({}) 입니다.", destination, authenticationCode);
             throw new SmsVerificationFailureException();
         }
-
-    }
-
-    private String generateAuthenticationCode() {
-        Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000));
     }
 }

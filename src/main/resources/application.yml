@@ -33,6 +33,10 @@ spring:
        key-serializer: org.apache.kafka.common.serialization.StringSerializer
        value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+jwt:
+  smsConfirmation:
+    expiration: 180000
+
 logging:
   pattern:
     console:  >

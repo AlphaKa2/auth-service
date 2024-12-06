@@ -38,12 +38,17 @@ public class JwtService {
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpirationPeriod;
 
+    @Value("${jwt.smsConfirmation.expiration}")
+    private Long smsConfirmationExpirationPeriod;
+
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
+    private static final String SMS_Confirmation_TOKEN_SUBJECT = "SmsConfirmation";
     private static final String ID_CLAIM = "id";
     private static final String ROLE_CLAIM = "role";
     private static final String NICKNAME_CLAIM = "nickname";
     private static final String PROFILE_CLAIM = "profile";
+    private static final String PHONE_NUMBER_CLAIM = "phoneNumber";
 
 
     private static final String BEARER = "Bearer ";
@@ -79,6 +84,17 @@ public class JwtService {
                 .builder()
                 .subject(REFRESH_TOKEN_SUBJECT)
                 .expiration(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .signWith(key)
+                .compact();
+    }
+
+    public String createSmsConfirmationToken(String phoneNumber) {
+        Date now = new Date();
+        return Jwts
+                .builder()
+                .subject(SMS_Confirmation_TOKEN_SUBJECT)
+                .expiration(new Date(now.getTime() + smsConfirmationExpirationPeriod))
+                .claim(PHONE_NUMBER_CLAIM, phoneNumber)
                 .signWith(key)
                 .compact();
     }
