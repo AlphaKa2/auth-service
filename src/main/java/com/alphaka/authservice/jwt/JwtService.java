@@ -132,6 +132,7 @@ public class JwtService {
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
                 .httpOnly(true)
+                .secure(true)
                 .path("/")
                 .maxAge(refreshTokenCookieMaxAge)
                 .sameSite("None")
@@ -142,6 +143,7 @@ public class JwtService {
         // 일반 쿠키 추가
         ResponseCookie regularCookie = ResponseCookie.from("TEST_COOKIE", "test_value")
                 .path("/")
+                .secure(true)
                 .maxAge(refreshTokenCookieMaxAge)
                 .sameSite("None") // Cross-Origin을 위한 설정
                 .build();
