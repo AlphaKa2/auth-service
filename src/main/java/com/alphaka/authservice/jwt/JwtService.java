@@ -104,7 +104,7 @@ public class JwtService {
 
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, null);
         refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setPath("/");
 
