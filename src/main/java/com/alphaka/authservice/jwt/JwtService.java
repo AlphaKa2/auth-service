@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -127,15 +128,16 @@ public class JwtService {
             throws Exception {
         log.info("응답에 accessToken, refreshToken 추가");
 
-        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
         int refreshTokenCookieMaxAge = 14 * 24 * 60 * 60;
 
-        refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setMaxAge(refreshTokenCookieMaxAge);
-        refreshTokenCookie.setPath("/");
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(refreshTokenCookieMaxAge)
+                .sameSite("None")
+                .build();
 
-        response.addCookie(refreshTokenCookie);
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
