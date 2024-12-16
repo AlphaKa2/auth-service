@@ -139,6 +139,16 @@ public class JwtService {
 
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
+        // 일반 쿠키 추가
+        ResponseCookie regularCookie = ResponseCookie.from("TEST_COOKIE", "test_value")
+                .path("/")
+                .maxAge(refreshTokenCookieMaxAge)
+                .sameSite("None") // Cross-Origin을 위한 설정
+                .build();
+
+        response.addHeader("Set-Cookie", regularCookie.toString());
+
+
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
