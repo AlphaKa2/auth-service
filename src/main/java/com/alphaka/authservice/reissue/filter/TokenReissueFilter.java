@@ -43,9 +43,12 @@ public class TokenReissueFilter extends OncePerRequestFilter {
 
             Optional<String> maybeRefreshTokenFromRequest = jwtService.extractRefreshToken(request);
 
+            log.info("사용자의 요청에 리프레시토큰 포함 여부:{}", maybeRefreshTokenFromRequest.isPresent());
+
             if (maybeRefreshTokenFromRequest.isPresent() && jwtService.isValidToken(
                     maybeRefreshTokenFromRequest.get())) {
 
+                log.info("레디스에 해당 리프레시 토큰 조회");
                 Optional<RefreshToken> maybeRefreshToken = refreshTokenService.findByRefreshToken(
                         maybeRefreshTokenFromRequest.get());
 
@@ -72,8 +75,9 @@ public class TokenReissueFilter extends OncePerRequestFilter {
                 throw new InvalidRefreshTokenException();
             }
         } catch (Exception e) {
+            log.error("토큰 재발급 처리 중 오류 발생 {}", e.getMessage());
             log.error("로그인 페이지로 리다이렉션");
-            response.sendRedirect("http://127.0.0.1:3000");
+            response.sendRedirect("http://127.0.0.1:3000/login");
         }
     }
 }

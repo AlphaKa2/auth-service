@@ -113,6 +113,7 @@ public class JwtService {
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        log.info("사용자의 refreshToken 추출 시도");
         return Optional.ofNullable(findCookieByName(request, REFRESH_TOKEN_COOKIE));
     }
 
@@ -189,8 +190,11 @@ public class JwtService {
     private static String findCookieByName(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals(name)) {
-                return cookies[i].getValue();
+            String cookieName = cookies[i].getName();
+            String value = cookies[i].getValue();
+            log.info("쿠키 명:{} 값:{}", cookieName, value);
+            if (cookieName.equals(name)) {
+                return value;
             }
         }
         return null;
