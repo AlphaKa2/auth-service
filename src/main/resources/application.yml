@@ -2,11 +2,62 @@
 server:
   port: 8002
 
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha # API 메서드 순서를 코드 정의 순으로 정렬
+  api-docs:
+    path: v3/api-docs
+  show-login-endpoint: true
+
+spring:
+  application:
+    name: auth-service
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - profile
+              - email
+
+  kafka:
+     producer:
+       key-serializer: org.apache.kafka.common.serialization.StringSerializer
+       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+jwt:
+  smsConfirmation:
+    expiration: 180000
+
+logging:
+  pattern:
+    console:  >
+      %d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} 
+      %highlight(%5level) 
+      %magenta(${PID:-}) --- [%15.15thread] [%X{trace.id:-}] 
+      %cyan(%logger{36}) : %msg
+
+
+# local 프로필
+---
+
 spring:
   config:
     import: file:.env[.properties]
-  application:
-    name: auth-service
+    activate:
+      on-profile: local
+
+  cloud:
+    kubernetes:
+      enabled: false
 
   redis:
     host: "${REDIS_HOST}"
@@ -20,17 +71,9 @@ spring:
           google:
             client-id: ${GOOGLE_OAUTH_CLIENT_ID}
             client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            scope:
-              - profile
-              - email
 
   kafka:
     bootstrap-servers: "${BROKER_URL}"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 #유레카 클라이언트 등록
 eureka:
@@ -39,15 +82,21 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: "${EUREKA_URL}"
+  instance:
+    metadata-map:
+      instanceName: ${spring.application.name}
 
 
 #JWT 설정
 jwt:
-  secretKey: ${JWT_SECRET_KEY}
+  secretKey: "${JWT_SECRET_KEY}"
   access:
-    expiration: 3600000
+    expiration: "${JWT_ACCESS_TOKEN_EXP}"
   refresh:
-    expiration: 604800000
+    expiration: "${JWT_REFRESH_TOKEN_EXP}"
+
+gateway:
+  url: http://127.0.0.1:8000
 
 #COOL SMS API
 coolsms:
@@ -56,3 +105,51 @@ coolsms:
     secret: "${COOLSMS_API_SECRET}"
     number: "${COOLSMS_NUMBER}"
     url: "${COOLSMS_API_URL}"
+
+
+# develop 프로필
+---
+
+spring:
+  config:
+    activate:
+      on-profile: develop
+
+  redis:
+    host: "${REDIS_HOST}"
+    port: "${REDIS_PORT}"
+    password: "${REDIS_PASSWORD}"
+
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH2_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+
+  kafka:
+    bootstrap-servers: "${KAFKA_BROKER_SERVER}"
+
+eureka:
+  client:
+    enabled: false
+
+
+jwt:
+  secretKey: "${JWT_SECRETKEY}"
+  access:
+    expiration: "${JWT_ACCESSTOKEN_EXP}"
+  refresh:
+    expiration: "${JWT_REFRESHTOKEN_EXP}"
+
+gateway:
+  url: "${GATEWAY_URL}"
+
+coolsms:
+  api:
+    key: "${SMS_KEY}"
+    secret: "${SMS_SECRET}"
+    number: "${SMS_NUMBER}"
+    url: "${SMS_URL}"

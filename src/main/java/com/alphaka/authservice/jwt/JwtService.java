@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -38,12 +39,17 @@ public class JwtService {
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpirationPeriod;
 
+    @Value("${jwt.smsConfirmation.expiration}")
+    private Long smsConfirmationExpirationPeriod;
+
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
+    private static final String SMS_Confirmation_TOKEN_SUBJECT = "SmsConfirmation";
     private static final String ID_CLAIM = "id";
     private static final String ROLE_CLAIM = "role";
     private static final String NICKNAME_CLAIM = "nickname";
     private static final String PROFILE_CLAIM = "profile";
+    private static final String PHONE_NUMBER_CLAIM = "phoneNumber";
 
 
     private static final String BEARER = "Bearer ";
@@ -83,19 +89,32 @@ public class JwtService {
                 .compact();
     }
 
+    public String createSmsConfirmationToken(String phoneNumber) {
+        Date now = new Date();
+        return Jwts
+                .builder()
+                .subject(SMS_Confirmation_TOKEN_SUBJECT)
+                .expiration(new Date(now.getTime() + smsConfirmationExpirationPeriod))
+                .claim(PHONE_NUMBER_CLAIM, phoneNumber)
+                .signWith(key)
+                .compact();
+    }
+
     public void expireRefreshTokenCookie(HttpServletResponse response) {
 
         Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, null);
         refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setPath("/");
 
         // 응답에 쿠키를 추가하여 삭제
+        log.info("사용자의 refreshToken 쿠키 만료");
         response.addCookie(refreshTokenCookie);
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        log.info("사용자의 refreshToken 추출 시도");
         return Optional.ofNullable(findCookieByName(request, REFRESH_TOKEN_COOKIE));
     }
 
@@ -107,15 +126,30 @@ public class JwtService {
 
     public void setAccessTokenAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken)
             throws Exception {
-        Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
+        log.info("응답에 accessToken, refreshToken 추가");
+
         int refreshTokenCookieMaxAge = 14 * 24 * 60 * 60;
 
-        refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setMaxAge(refreshTokenCookieMaxAge);
-        refreshTokenCookie.setPath("/");
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(refreshTokenCookieMaxAge)
+                .sameSite("None")
+                .build();
 
-        response.addCookie(refreshTokenCookie);
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        // 일반 쿠키 추가
+        ResponseCookie regularCookie = ResponseCookie.from("TEST_COOKIE", "test_value")
+                .path("/")
+                .secure(true)
+                .maxAge(refreshTokenCookieMaxAge)
+                .sameSite("None") // Cross-Origin을 위한 설정
+                .build();
+
+        response.addHeader("Set-Cookie", regularCookie.toString());
+
 
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -147,15 +181,22 @@ public class JwtService {
 
     public boolean isValidToken(String token) {
         try {
+            log.info("토큰 {}에 대한 검증 시작", token);
+
             Jws<Claims> claims = Jwts
                     .parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
 
-            return claims.getPayload().getExpiration().after(new Date());
+            if (!claims.getPayload().getExpiration().after(new Date())) {
+                log.info("토큰의 유효기간이 지났습니다. {}", token);
+                return false;
+            }
+            return true;
         } catch (JwtException e) {
-            log.error("Invalid Token: {}", e.getMessage());
+            log.error("토큰 해독 중 문제가 발생했습니다. {}", token);
+            log.error("{}", e.getMessage());
             return false;
         }
     }
@@ -163,8 +204,11 @@ public class JwtService {
     private static String findCookieByName(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals(name)) {
-                return cookies[i].getValue();
+            String cookieName = cookies[i].getName();
+            String value = cookies[i].getValue();
+            log.info("쿠키 명:{} 값:{}", cookieName, value);
+            if (cookieName.equals(name)) {
+                return value;
             }
         }
         return null;

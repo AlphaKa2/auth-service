@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StreamUtils;
 
+@Slf4j
 public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private static final String DEFAULT_LOGIN_REQUEST_URL = "/login";
@@ -39,6 +41,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
                     "Authentication Content-Type not supported: " + request.getContentType());
         }
 
+        log.info("이메일, 패스워드 자체 로그인 인증 필터 시작");
+
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
 
         Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, Map.class);
@@ -49,7 +53,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenti
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email,
                 password);
 
-        //로그아웃 실패 시, 이메일 정보를 사용하기 위해 임시 저장
+        //인증 성공, 실패 핸들러에서 사용자 email을 조회할 수 있도록 저장
         request.setAttribute("X-Login-Attempt-Email", email);
 
         return this.getAuthenticationManager().authenticate(authRequest);

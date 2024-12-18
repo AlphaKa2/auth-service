@@ -1,11 +1,14 @@
 package com.alphaka.authservice.sms.service;
 
+import com.alphaka.authservice.dto.response.SmsVerificationResponse;
+import com.alphaka.authservice.exception.custom.SmsVerificationFailureException;
+import com.alphaka.authservice.jwt.JwtService;
 import com.alphaka.authservice.redis.entity.SmsAuthenticationCode;
 import com.alphaka.authservice.redis.service.SmsAuthenticationCodeService;
 import jakarta.annotation.PostConstruct;
-import java.util.Optional;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SmsService {
 
@@ -30,6 +34,7 @@ public class SmsService {
     private String apiUrl;
 
     private final SmsAuthenticationCodeService smsAuthenticationCodeService;
+    private final JwtService jwtService;
 
     private DefaultMessageService messageService;
 
@@ -48,24 +53,43 @@ public class SmsService {
         message.setTo(destination);
         message.setText(authenticationCode);
 
+        log.info("전화번호 {}에 대한 인증코드 {} 생성 및 전송", destination, authenticationCode);
+
         messageService.sendOne(new SingleMessageSendingRequest(message));
         smsAuthenticationCodeService.saveAuthenticationCode(destination, authenticationCode);
     }
 
-    public boolean verifyAuthenticationCode(String destination, String authenticationCode) {
-        Optional<SmsAuthenticationCode> maybeAuthenticationCode =
-                smsAuthenticationCodeService.getAuthenticationCodeByNumber(destination);
+    public SmsVerificationResponse verifyAuthenticationCodeAndGetSmsConfirmationToken(String destination,
+                                                                                      String authenticationCode) {
 
-        if (maybeAuthenticationCode.isEmpty() ||
-                !maybeAuthenticationCode.get().getAuthenticationCode().equals(authenticationCode)) {
-            return false;
-        }
+        verifyAuthenticationCode(destination, authenticationCode);
 
-        return true;
+        String smsConfirmationToken = jwtService.createSmsConfirmationToken(destination);
+        log.info("SMS 인증 확인 토큰({}) 생성 완료", smsConfirmationToken);
+
+        System.out.println(jwtService.createSmsConfirmationToken("01000000000"));
+        return new SmsVerificationResponse(smsConfirmationToken);
     }
 
     private String generateAuthenticationCode() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
+    }
+
+    private void verifyAuthenticationCode(String destination, String authenticationCode) {
+        SmsAuthenticationCode validAuthenticationCode = smsAuthenticationCodeService
+                .getAuthenticationCodeByNumber(destination)
+                .orElseThrow(() -> {
+                    log.error("해당 전화번호({})에 대한 유효한 인증 코드가 존재하지 않습니다.", destination);
+                    return new SmsVerificationFailureException();
+                });
+
+        log.info("전화번호({})에 대해 입력된 인증 코드: {}", destination, authenticationCode);
+        log.info("유효한 인증 코드: {}", validAuthenticationCode.getAuthenticationCode());
+
+        if (!validAuthenticationCode.getAuthenticationCode().equals(authenticationCode)) {
+            log.error("전화번호({})에 대한 일치하지 않는 인증 코드({}) 입니다.", destination, authenticationCode);
+            throw new SmsVerificationFailureException();
+        }
     }
 }
